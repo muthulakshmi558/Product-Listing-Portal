@@ -1,0 +1,44 @@
+{% extends "products/Layout/base.html" %}
+
+{% block title %}Home - Products{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <form method="get" class="flex space-x-2">
+        <input type="number" name="price__gte" placeholder="Min Price" class="border p-1 rounded" value="{{ request.GET.price__gte }}">
+        <input type="number" name="price__lte" placeholder="Max Price" class="border p-1 rounded" value="{{ request.GET.price__lte }}">
+        <select name="is_available" class="border p-1 rounded">
+            <option value="">Availability</option>
+            <option value="True" {% if request.GET.is_available == "True" %}selected{% endif %}>Available</option>
+            <option value="False" {% if request.GET.is_available == "False" %}selected{% endif %}>Unavailable</option>
+        </select>
+        <button type="submit" class="bg-green-500 text-white px-3 rounded">Filter</button>
+    </form>
+</div>
+
+<p class="mb-4">Total results found: {{ page_obj.paginator.count }}</p>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for product in page_obj %}
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-lg font-bold">{{ product.name }}</h2>
+            <p class="text-gray-600">Brand: {{ product.brand }}</p>
+            <p class="text-gray-800 font-semibold">Price: ₹{{ product.price }}</p>
+            <p class="text-sm {% if product.is_available %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if product.is_available %}Available{% else %}Unavailable{% endif %}
+            </p>
+            <a href="{% url 'product-detail' product.id %}" class="mt-2 inline-block bg-blue-500 text-white px-3 py-1 rounded">View</a>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="mt-6 flex justify-center space-x-2">
+    {% if page_obj.has_previous %}
+        <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.price__gte %}price__gte={{ request.GET.price__gte }}&{% endif %}{% if request.GET.price__lte %}price__lte={{ request.GET.price__lte }}&{% endif %}{% if request.GET.is_available %}is_available={{ request.GET.is_available }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-300 rounded">Previous</a>
+    {% endif %}
+    <span class="px-3 py-1 bg-gray-200 rounded">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.price__gte %}price__gte={{ request.GET.price__gte }}&{% endif %}{% if request.GET.price__lte %}price__lte={{ request.GET.price__lte }}&{% endif %}{% if request.GET.is_available %}is_available={{ request.GET.is_available }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-300 rounded">Next</a>
+    {% endif %}
+</div>
+{% endblock %}
